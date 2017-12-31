@@ -2,6 +2,7 @@ package com.szj.blueview;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private BluetoothAdapter btAdapter = null;//本地蓝牙适配器
 
+    private MyService myService = null;//Service引用
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,8 +43,12 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "请先开启蓝牙！", Toast.LENGTH_SHORT).show();
             finish();
         }else{//初始化聊天控件
+
             Log.i("初始化蓝牙","2");
-            initChat();
+            if (myService != null){
+                Log.i("初始化蓝牙","3");
+                initChat();
+            }
         }
     }
 
@@ -57,9 +64,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         sbOut = new StringBuffer("");
+        myService = new MyService();//创建Service对象
     }
     //发送消息
     private void sendMessage(String message) {
+        //先检查是否已经连接到设备
+        if (myService.getState() != MyService.STATE_CONNECTED){
+            Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (message.length() > 0){//如果消息不为空，再发送消息
+            byte[] send = message.getBytes();
+            myService.write(send);
+            //消除StringBuffer和编辑文本框的内容
+            sbOut.setLength(0);
+            etOut.setText(sbOut);
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (myService != null){//创建并开启service
+            //如果Service为空状态
+            if (myService.getState() == MyService.STATE_NONE){
+                myService.start();//开启service
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (myService != null){//停止Service
+            myService.stop();
+        }
     }
 
     @Override
@@ -68,6 +108,11 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 //如果设备列表activity成功返回一个连接的设备
                 if (resultCode == Activity.RESULT_OK){
+                    //获取设备的MAC地址
+                    String address = data.getExtras()
+                            .getString(MyDeviceListActivity.EXTRA_DEVICE_ADDR);
+                    //获取BluetoothDevice对象
+                    BluetoothDevice device = btAdapter.getRemoteDevice(address);
 
                 }
                 break;
@@ -81,6 +126,6 @@ public class MainActivity extends AppCompatActivity {
         Log.i("点击了Menu","----");
         Intent serverIntent = new Intent(this,MyDeviceListActivity.class);
         startActivityForResult(serverIntent,1);
-        return true;
+        return false;
     }
 }

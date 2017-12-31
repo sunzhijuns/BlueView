@@ -10,11 +10,14 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.Set;
 
@@ -53,10 +56,12 @@ public class MyDeviceListActivity extends AppCompatActivity {
         //将已配对的设备放入列表中
         ListView lvPaired = findViewById(R.id.paired_devices);
         lvPaired.setAdapter(myAdapterPaired);
+        lvPaired.setOnItemClickListener(mDeviceClickListener);
 
         //将新发现的设备放入列表中
         ListView lvNewDevices = findViewById(R.id.new_devices);
         lvNewDevices.setAdapter(myAdapterNew);
+        lvNewDevices.setOnItemClickListener(mDeviceClickListener);
 
         //注册发现设备时的广播
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -105,6 +110,24 @@ public class MyDeviceListActivity extends AppCompatActivity {
         }
         myBtAdapter.startDiscovery();//开始搜索
     }
+
+    //列表设备按下时的监听器
+    private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            myBtAdapter.cancelDiscovery();//取消搜索
+            //获取设备的mac地址
+            String msg = ((TextView)view).getText().toString();
+            String address = msg.substring(msg.length() - 17);
+            //创建带有mac地址的Intent
+            Intent intent = new Intent();
+            intent.putExtra(EXTRA_DEVICE_ADDR,address);
+            //退出activity返回设备地址
+            setResult(Activity.RESULT_OK,intent);
+            Log.i("mac地址",address);
+            finish();
+        }
+    };
 
     //监听搜索到设备的broadcastreceiver
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {

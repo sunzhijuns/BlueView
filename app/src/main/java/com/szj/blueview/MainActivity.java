@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         }else{//初始化聊天控件
 
             Log.i("初始化蓝牙","2");
-            if (myService != null){
+            if (myService == null){
                 Log.i("初始化蓝牙","3");
                 initChat();
             }
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                     byte[] bufRead = (byte[])msg.obj;
                     //创建显示的字符串
                     String readMessage = new String(bufRead,0,msg.arg1);
+                    Log.i("输入的信息",readMessage);
                     Toast.makeText(MainActivity.this,
                             connectedName + ":"+readMessage, Toast.LENGTH_LONG).show();
                     break;

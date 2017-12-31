@@ -26,7 +26,7 @@ import java.util.Set;
  * Created by sunzhijun on 2017/12/31.
  */
 
-public class MyDeviceListActivity extends AppCompatActivity {
+public class MyDeviceListActivity extends Activity {
     //extra信息名称
     public static String EXTRA_DEVICE_ADDR = "device_address";
     private BluetoothAdapter myBtAdapter;

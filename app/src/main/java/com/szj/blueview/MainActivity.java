@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         sbOut = new StringBuffer("");
-        myService = new MyService();//创建Service对象
+        myService = new MyService(this,mHandler);//创建Service对象
     }
     //发送消息
     private void sendMessage(String message) {
@@ -102,6 +104,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //处理从Service发来的消息
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case Constant.MSG_READ:
+                    byte[] bufRead = (byte[])msg.obj;
+                    //创建显示的字符串
+                    String readMessage = new String(bufRead,0,msg.arg1);
+                    Toast.makeText(MainActivity.this,
+                            connectedName + ":"+readMessage, Toast.LENGTH_LONG).show();
+                    break;
+                case Constant.MSG_DEVICE_NAME:
+                    //获取已连接的设备的名称，并弹出提示信息
+                    connectedName = msg.getData().getString(Constant.DEVICE_NAME);
+                    Toast.makeText(MainActivity.this,
+                            "已连接到 " + connectedName, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode){
@@ -113,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                             .getString(MyDeviceListActivity.EXTRA_DEVICE_ADDR);
                     //获取BluetoothDevice对象
                     BluetoothDevice device = btAdapter.getRemoteDevice(address);
-
+                    myService.connect(device);//连接该设备
                 }
                 break;
         }

@@ -1,5 +1,8 @@
 package com.szj.blueview;
 
+import android.bluetooth.BluetoothDevice;
+import android.os.Handler;
+
 /**
  * 用于管理连接的Service
  * Created by sunzhijun on 2017/12/31.
@@ -12,7 +15,9 @@ public class MyService {
     public static final int STATE_LISTEN = 1;//正在监听连接
     public static final int STATE_CONNECTING = 2;//正在连接
     public static final int STATE_CONNECTED = 3;//已连接到设备
-    
+
+    public MyService(MainActivity mainActivity, Handler mHandler) {
+    }
 
 
     public int getState() {
@@ -26,5 +31,8 @@ public class MyService {
     }
 
     public void start() {
+    }
+
+    public void connect(BluetoothDevice device) {
     }
 }

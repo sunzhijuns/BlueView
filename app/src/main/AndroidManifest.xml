@@ -17,7 +17,8 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".SoundActivity"/>
         <activity android:name=".ClientActivity"/>
-        <activity android:name=".FileActivity">
+        <activity android:name=".FileActivity"/>
+        <activity android:name=".FileListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -24,7 +24,7 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class FileListActivity extends Activity {// 创建Activity
     String currPath; // 当前路径字符串
-    String rootPath = "/"; // 根目录路径
+    String rootPath = "/system/"; // 根目录路径
     TextView currDirTV;//显示当前路径的TextView
 
     @Override
@@ -45,8 +45,12 @@ public class FileListActivity extends Activity {// 创建Activity
                     public void onClick(View v) {
                         if (!currPath.equals(rootPath)) {// 若当前路径不是根目录，返回到上一层目录
                             File f = new File(currPath); // 获取当前路径下的文件列表
+
                             f = f.getParentFile(); // 获取当前路径的上层路径
-                            currPath = f.getPath(); // 更改当前路径
+                            if (f != null){
+                                currPath = f.getPath(); // 更改当前路径
+                            }
+
                             currDirTV.setText("当前路径：" + currPath);//设置当前路径
                             initListView(getFiles(currPath), lv); // 初始化显示列表
                         }
